@@ -1,0 +1,309 @@
+function dateKey(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+let storageAvailable = true;
+
+const KEY = "satvic-prototype-v3";
+const today = () => dateKey(new Date());
+const defaults = {
+  persona: "new",
+  tab: "Home",
+  history: {},
+  goal: "",
+  onboard: 0,
+  workshop: true,
+  session: false,
+  reminder: false,
+  modal: null,
+};
+let state;
+try {
+  state = {
+    ...defaults,
+    history: {},
+    ...JSON.parse(localStorage.getItem(KEY) || "{}"),
+  };
+} catch {
+  storageAvailable = false;
+  state = { ...defaults, history: {} };
+}
+const save = () => {
+  try {
+    localStorage.setItem(KEY, JSON.stringify({ ...state, modal: null }));
+  } catch {
+    storageAvailable = false;
+  }
+};
+const h = (x) =>
+  String(x).replace(
+    /[&<>"']/g,
+    (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+        c
+      ],
+  );
+const habits = [
+  "Move or stretch for a few minutes",
+  "Take a quiet breathing break",
+  "Prepare or enjoy a plant-based meal",
+  "Spend a little time outdoors (if suitable)",
+];
+const recipes = [
+  {
+    title: "Chocolate Milkshake",
+    src: "assets/chocolate.jpg",
+    desc: "From the candidate dashboard",
+    url: "https://dashboard.satvicmovement.org/",
+  },
+  {
+    title: "Glowing Green Juice",
+    src: "assets/green-juice.jpg",
+    desc: "1From the candidate dashboard",
+    url: "https://dashboard.satvicmovement.org/",
+  },
+  {
+    title: "Sesame Apple Smoothie",
+    src: "assets/meal-plan.jpg",
+    desc: "Official recipe collection · illustrative meal-plan image",
+    url: "https://blog.satvicmovement.org/recipes",
+  },
+];
+// Treat persisted browser data as untrusted; recover to useful defaults.
+if (!["new", "returning", "enrolled", "completed"].includes(state.persona))
+  state.persona = "new";
+if (!["Home", "Recipes", "Workshops", "Explore", "Profile"].includes(state.tab))
+  state.tab = "Home";
+if (!Number.isInteger(state.onboard) || state.onboard < 0 || state.onboard > 3)
+  state.onboard = 0;
+if (
+  !state.history ||
+  typeof state.history !== "object" ||
+  Array.isArray(state.history)
+)
+  state.history = {};
+for (const [key, value] of Object.entries(state.history))
+  state.history[key] = Array.isArray(value)
+    ? [...new Set(value.filter((n) => Number.isInteger(n) && n >= 0 && n < 4))]
+    : [];
+state.modal = null;
+const checked = () => state.history[today()] || [];
+function streak() {
+  let d = new Date(),
+    count = 0;
+  if (!(state.history[dateKey(d)] || []).length) d.setDate(d.getDate() - 1);
+  for (let i = 0; i < 3660; i++) {
+    if (!(state.history[dateKey(d)] || []).length) break;
+    count++;
+    d.setDate(d.getDate() - 1);
+  }
+  return count;
+}
+function update(o) {
+  Object.assign(state, o);
+  save();
+  render();
+}
+function mark(i) {
+  let cur = [...checked()];
+  cur = cur.includes(i) ? cur.filter((n) => n !== i) : [...cur, i];
+  state.history[today()] = cur;
+  save();
+  render();
+}
+function begin() {
+  update({ onboard: Math.max(1, state.onboard) });
+}
+let modalTrigger = null;
+function openModal(type, id) {
+  modalTrigger = document.activeElement;
+  state.modal = { type, id };
+  render();
+  document.querySelector(".modal .x").focus();
+}
+function closeModal() {
+  state.modal = null;
+  render();
+  if (modalTrigger) {
+    const candidate = [...document.querySelectorAll("button")].find(
+      (b) => b.outerHTML === modalTrigger.outerHTML,
+    );
+    candidate?.focus();
+  }
+}
+function link(url) {
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+function header() {
+  return `<header class="top"><div class="brand"><div class="logo">✺ satvic <span>MOVEMENT</span></div><button class="avatar" aria-label="Open profile" onclick="tab('Profile')">☺</button></div><div class="eyebrow">Your satvic today 🌿</div><h1>Namaste, Anand</h1><div class="muted">A little nourishment. A little movement. A moment for you.</div><div class="statebar"><label><span class="hint">Demo persona · simulated</span><br><select aria-label="Demo persona · simulated" onchange="persona(this.value)"><option value="new" ${state.persona === "new" ? "selected" : ""}>New explorer</option><option value="returning" ${state.persona === "returning" ? "selected" : ""}>Returning member</option><option value="enrolled" ${state.persona === "enrolled" ? "selected" : ""}>Enrolled learner</option><option value="completed" ${state.persona === "completed" ? "selected" : ""}>Completed program</option></select></label><span class="badge">🌱 ${streak() ? streak() + " day practice streak" : "Begin your journey"}</span></div></header>`;
+}
+function resolveNextAction(persona, interest) {
+  if (persona === "enrolled")
+    return {
+      label: "YOUR DEMO PROGRAM",
+      title: "Return to your mat",
+      description:
+        "Your simulated Daily Yoga program is ready to resume. No live class or schedule is connected.",
+      cta: "Resume demo class",
+      type: "class",
+    };
+  if (persona === "returning")
+    return {
+      label: "A LITTLE CONTINUITY",
+      title: "Come back to your quiet",
+      description:
+        "Continue your last free practice: a two-minute pause. Begin right where you are.",
+      cta: "Continue free practice",
+      type: "practice",
+    };
+  if (persona === "completed")
+    return {
+      label: "YOUR NEXT CHAPTER",
+      title: "Keep the good growing",
+      description:
+        "A program ends. Your daily practice can keep unfolding, one gentle step at a time.",
+      cta: "Choose today’s practice",
+      type: "practice",
+    };
+  return {
+    label: "YOUR NEXT SMALL STEP",
+    title:
+      interest === "Food"
+        ? "Make room for nourishment"
+        : "Two minutes, just for you",
+    description:
+      interest === "Food"
+        ? "Begin with one plant-based meal. A small, achievable step to make your own."
+        : "Relax your shoulders. Take a quiet breath. Your first Satvic step can be this simple.",
+    cta: interest === "Food" ? "Explore a meal idea" : "Try a two-minute pause",
+    type: interest === "Food" ? "recipe" : "practice",
+  };
+}
+function hero() {
+  const d = resolveNextAction(state.persona, state.goal);
+  return `<section class="section"><div class="card hero"><div class="hero-copy"><span class="pill">✦ ${d.label}</span><h2>${d.title}</h2><p>${d.description}</p><div class="actions"><button class="btn" onclick="openModal('${d.type}'${d.type === "recipe" ? ",0" : ""})">${d.cta} <span aria-hidden="true">→</span></button><button class="text-button" onclick="tab('Explore')">Choose something else</button></div><div class="hero-note">${state.persona === "enrolled" ? "Simulated enrollment · sample session 3 of 8" : "At your pace. Always optional."}</div></div><img class="hero-image" src="assets/yoga.jpg" alt="Satvic yoga practice preview"><span class="image-note">A moment of stillness</span></div></section>`;
+}
+function practice() {
+  const c = checked().length;
+  return `<section class="section" id="practices"><div class="section-title"><h2>Little steps for today</h2><small>${c}/4 chosen</small></div><div class="card practice"><div class="muted">Choose what feels right. All activities are optional.</div>${habits.map((t, i) => `<div class="habit"><label><input aria-label="${h(t)}" type="checkbox" ${checked().includes(i) ? "checked" : ""} onchange="mark(${i})"><span>${h(t)}</span></label></div>`).join("")}<div class="progress"><div style="width:${c * 25}%"></div></div><div class="hint">${c ? (storageAvailable ? "Beautiful. Your progress is saved on this device." : "Progress lasts for this visit; storage is unavailable.") : "Your journey can begin with just one step."}</div></div></section>`;
+}
+function content() {
+  return `<section class="section"><div class="section-title"><h2>Discover Satvic goodness</h2><small>Swipe to explore</small></div><div class="horizontal">${recipes.map((r, i) => `<article class="card media"><img src="${r.src}" alt="${h(r.title)}"><div class="details"><h3>${h(r.title)}</h3><small>${h(r.desc)}</small><div class="actions"><button class="btn secondary" onclick="openModal('recipe',${i})">Explore →</button></div></div></article>`).join("")}</div></section>`;
+}
+function goals() {
+  return `<section class="section"><div class="section-title"><h2>What brings you here?</h2><small>Optional</small></div><div class="card practice"><div class="muted">Tell us one interest so we can make discovery easier—not to diagnose you.</div><div class="actions quiz">${["Food", "Yoga", "Both"].map((x) => `<button class="btn ${state.goal === x ? "" : "ghost"}" onclick="update({goal:'${x}'})">${x}</button>`).join("")}</div>${state.goal ? `<p class="muted">Wonderful! Your interest is ${h(state.goal.toLowerCase())}. This guides the new explorer’s next step. <button class="btn secondary" onclick="update({goal:''})">Clear</button></p>` : ""}</div></section>`;
+}
+function workshop() {
+  return `<section class="section"><div class="section-title"><h2>${state.workshop ? "Explore a guided program" : "More ways to learn"}</h2></div><div class="card workshop"><img src="${state.workshop ? "assets/workshop.jpg" : "assets/yoga.jpg"}" alt="${state.workshop ? "Satvic cooking workshop preview" : "Satvic yoga practice"}"><div><span class="pill">${state.workshop ? "OFFICIAL PROGRAM" : "EVERGREEN"}</span><h3>${state.workshop ? "One Pot Meals Workshop" : "Daily Yoga Classes"}</h3><p>${state.workshop ? "Cook along with Satvic instructors. Check official page for current cohort availability." : "Build a gentle ongoing practice. Explore the official program details."}</p><button class="btn" onclick="openModal('workshop')">${state.workshop ? "View workshop" : "Explore classes"} →</button></div></div><label class="switchline"><span class="muted">Demo: workshop currently available</span><input type="checkbox" aria-label="Workshop available" ${state.workshop ? "checked" : ""} onchange="update({workshop:this.checked})"></label></section>`;
+}
+function onboard() {
+  if (state.persona !== "new" || state.onboard === 3) return "";
+  const k = state.onboard;
+  return `<section class="section"><div class="card practice"><span class="pill">WELCOME · STEP ${k + 1} OF 3</span><h2>${["A gentle beginning", "Choose what interests you", resolveNextAction(state.persona, state.goal).title][k]}</h2><p class="muted">${["We’ll help you find your next meaningful step.", "Start with an interest; you can always change it.", resolveNextAction(state.persona, state.goal).description][k]}</p>${k === 1 ? `<div class="actions">${["Food", "Yoga", "Both"].map((x) => `<button class="btn ${state.goal === x ? "" : "ghost"}" onclick="update({goal:'${x}'})">${x}</button>`).join("")}</div>` : ""}<div class="actions"><button class="btn" onclick="update({onboard:${k + 1}})">${k === 2 ? "Finish setup" : "Continue"} →</button><button class="btn secondary" onclick="update({onboard:3})">Skip</button></div></div></section>`;
+}
+function home() {
+  return `${hero()}${onboard()}${practice()}${content()}${goals()}${workshop()}`;
+}
+function secondary() {
+  let p = state.tab;
+  if (p === "Recipes")
+    return `<div class="section-title"><h2>Recipes & meal ideas</h2></div>${content()}<div class="card practice"><h3>From Satvic’s official recipe collection</h3><p class="muted">Yam Makhani, Coconut Stew and Appam, Sesame Apple Smoothie and more.</p><button class="btn" onclick="link('https://blog.satvicmovement.org/recipes')">Open official recipes ↗</button></div>`;
+  if (p === "Workshops")
+    return `<div class="section-title"><h2>Workshops & classes</h2></div>${workshop()}<div class="card practice"><h3>Your programs</h3><p class="muted">${state.persona === "enrolled" ? "Demo: Daily Yoga is in progress." : "No currently active enrollment is simulated for this persona."}</p>${state.persona === "enrolled" ? `<button class="btn" onclick="openModal('class')">Resume demo program</button>` : `<button class="btn secondary" onclick="openModal('workshop')">Explore a program</button>`}</div>`;
+  if (p === "Explore")
+    return `<div class="section-title"><h2>Explore the movement</h2></div><div class="links"><button class="tile" onclick="tab('Recipes')">🥗 Recipes</button><button class="tile" onclick="tab('Workshops')">🧘 Workshops</button><button class="tile" onclick="link('https://dev.marketplace.satvicmovement.org/collections/all-products')">🛍️ Shop & books ↗</button><button class="tile" onclick="openModal('community')">🤝 Potluck community</button></div><p class="hint">Marketplace opens an external development-store link supplied for assignment research, not a checkout inside this prototype.</p>`;
+  return `<div class="section-title"><h2>Your journey</h2></div><div class="card practice"><h3>Welcome, Anand 🌱</h3><p class="muted">Demo profile. Preferences and daily check-ins save locally.</p><div class="switchline">Daily reminder (demo only)<input type="checkbox" aria-label="Daily reminder" ${state.reminder ? "checked" : ""} onchange="update({reminder:this.checked})"></div><button class="btn secondary" onclick="resetDemo()">Reset demo data</button></div>`;
+}
+function modal() {
+  if (!state.modal) return "";
+  let m = state.modal;
+  let r = m.type === "recipe" ? recipes[m.id] : null;
+  let title =
+    m.type === "practice"
+      ? "A two-minute quiet pause"
+      : r
+        ? r.title
+        : m.type === "class"
+          ? "Daily Yoga · class preview"
+          : m.type === "community"
+            ? "Potluck community"
+            : state.workshop
+              ? "One Pot Meals Workshop"
+              : "Daily Yoga Classes";
+  let desc =
+    m.type === "practice"
+      ? "Find a comfortable position. Let your shoulders soften and breathe naturally. Stay for a moment, or finish whenever you wish. This is a free guided prompt, with no timer or health promise."
+      : r
+        ? "Recipe preview based on the uploaded dashboard screenshot. Open the Satvic source to learn more."
+        : m.type === "class"
+          ? "This is a simulated class detail. In production, connect entitlement, schedule and resume position from the real account."
+          : m.type === "community"
+            ? "Community discovery is a future integration; this demo does not post or join groups."
+            : "Explore the verified official offering. Availability and price are intentionally not invented.";
+  let url = r
+    ? r.url
+    : m.type === "class"
+      ? "https://satvicmovement.org/workshops/yoga-sadhana-beginner/subscription/"
+      : state.workshop
+        ? "https://satvicmovement.org/workshops/onepotmeals/"
+        : "https://satvicmovement.org/workshops/yoga-sadhana-beginner/subscription/";
+  return `<div class="modalback" role="presentation" onclick="closeModal()"><section role="dialog" aria-modal="true" aria-label="${h(title)}" class="modal" onclick="event.stopPropagation()"><button class="x" aria-label="Close dialog" onclick="closeModal()">✕</button><div class="eyebrow">Satvic Movement · concept demo</div><h2>${h(title)}</h2><p>${h(desc)}</p>${m.type === "practice" ? `<button class="btn block" onclick="if(!checked().includes(1))mark(1);closeModal()">Log my breathing break ✓</button>` : ""}${m.type === "class" && state.persona === "enrolled" ? `<button class="btn block" onclick="update({session:true,modal:null})">${state.session ? "Class marked as started ✓" : "Start demo class"}</button><p class="hint">This does not enroll you, open a live session, or confirm actual attendance.</p>` : ""}<div class="actions">${m.type === "practice" || m.type === "community" ? "" : `<button class="btn secondary" onclick="link('${url}')">Official source ↗</button>`}<button class="btn ghost" onclick="closeModal()">Close preview</button></div></section></div>`;
+}
+function nav() {
+  let tabs = [
+    ["Home", "⌂"],
+    ["Recipes", "♧"],
+    ["Workshops", "◈"],
+    ["Explore", "✿"],
+    ["Profile", "☺"],
+  ];
+  return `<nav class="nav" aria-label="Primary navigation">${tabs.map(([t, i]) => `<button class="${state.tab === t ? "active" : ""}" aria-current="${state.tab === t ? "page" : "false"}" onclick="tab('${t}')"><b aria-hidden="true">${i}</b>${t}</button>`).join("")}</nav>`;
+}
+function tab(x) {
+  state.tab = x;
+  save();
+  render();
+  window.scrollTo(0, 0);
+}
+function persona(x) {
+  update({ persona: x, tab: "Home" });
+}
+function resetDemo() {
+  if (confirm("Reset all locally saved demo progress?")) {
+    state = { ...defaults, history: {} };
+    save();
+    render();
+  }
+}
+function render() {
+  const focus = document.activeElement;
+  const focusLabel = focus?.getAttribute("aria-label");
+  const focusText = focus?.tagName === "BUTTON" ? focus.textContent : null;
+  document.getElementById("app").innerHTML =
+    `<div id="page-content" ${state.modal ? "inert" : ""}>${header()}${!storageAvailable ? '<div class="notice" role="status">Storage is unavailable. You can still explore; changes last for this visit.</div>' : ""}<div class="content screen">${state.tab === "Home" ? home() : secondary()}<p class="hint">Candidate concept · not an official Satvic product<br>Demo states & screenshot-derived visuals for research only.</p></div>${nav()}</div>${modal()}`;
+  if (!state.modal) {
+    const target = focusLabel
+      ? document.querySelector(`[aria-label="${CSS.escape(focusLabel)}"]`)
+      : focusText
+        ? [...document.querySelectorAll("button")].find(
+            (b) => b.textContent === focusText,
+          )
+        : null;
+    target?.focus({ preventScroll: true });
+  }
+}
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && state.modal) closeModal();
+  if (e.key === "Tab" && state.modal) {
+    const items = [...document.querySelectorAll(".modal button,.modal a")];
+    const first = items[0],
+      last = items.at(-1);
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+});
+render();
