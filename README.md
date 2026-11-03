@@ -51,3 +51,11 @@ Source links are retained from the supplied brief. The dashboard reference could
 ## Design
 
 Warm cream surfaces, forest-green actions, editorial serif headings, restrained lime illuminated button borders, generous spacing, local imagery and reduced-motion support. Primary recommendations are deterministic demo fixtures: enrolled content, last free practice, continued consistency or a beginner step. Real active-class priority requires authoritative entitlement and schedule data; no live class is invented in this prototype.
+
+## Public browser preview with GitHub Pages
+
+The root directory is ready for static GitHub Pages hosting (`.nojekyll` disables Jekyll processing). A repository administrator can enable it at:
+
+https://github.com/anandabhi25/Satvic_Prototype/settings/pages
+
+Choose **Deploy from a branch**, branch **main**, folder **/ (root)**, then **Save**. GitHub will display the deployment URL when the build succeeds. The expected project URL is `https://anandabhi25.github.io/Satvic_Prototype/`; it is not confirmed live merely by committing these files. If Pages is unavailable for this repository's visibility and account plan, GitHub's settings will show that limitation; do not change repository visibility without explicit approval.
