@@ -211,6 +211,21 @@ const fs = require("node:fs");
   await page.getByRole('navigation',{name:'Website navigation',exact:true}).getByText('Workshops',{exact:true}).click();
   await page.getByRole('button',{name:'Discover workshops',exact:true}).click();assert.equal(await page.evaluate(()=>state.tab),'Workshops');
   console.log('PASS: mobile header menu, dropdown routing, Escape and desktop dropdown');
+  await page.setViewportSize({width:390,height:844});
+  await page.getByRole('button',{name:'Open Satvic guide',exact:true}).click();
+  await page.getByRole('button',{name:'Easy meal ideas',exact:true}).click();
+  await page.getByRole('button',{name:'Explore recipes',exact:true}).click();assert.equal(await page.evaluate(()=>state.tab),'Recipes');
+  await page.getByRole('button',{name:'Open Satvic guide',exact:true}).click();
+  await page.getByLabel('What are you looking for?',{exact:true}).fill('<img src=x onerror=alert(1)> medical diagnosis');
+  await page.getByRole('button',{name:'Send',exact:true}).click();assert.match(await page.locator('.chat-log').textContent(),/qualified healthcare professional/);assert.equal(await page.locator('.chat-log img').count(),0);
+  await page.getByRole('button',{name:'Invite a friend',exact:true}).click();await page.locator('.chat-log').getByRole('button',{name:'Invite a friend',exact:true}).click();
+  const url=await page.getByLabel('Your demo invitation link',{exact:true}).inputValue();assert.match(url,/ref=demo-[a-f0-9]{12}/);
+  await context.grantPermissions(['clipboard-read','clipboard-write']);
+  await page.getByRole('button',{name:'Copy invitation link',exact:true}).click();assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),url);
+  await page.screenshot({path:'screenshots/referral-390.png'});await page.keyboard.press('Escape');
+  await page.goto(url);await page.getByRole('heading',{name:'A quiet beginning, shared with you.',exact:true}).waitFor();await page.getByRole('button',{name:'Try my first pause',exact:true}).click();await page.getByRole('button',{name:'Begin breathing',exact:true}).waitFor();await page.keyboard.press('Escape');
+  await page.getByRole('button',{name:'Open Satvic guide',exact:true}).click();await page.screenshot({path:'screenshots/guide-390.png'});await page.keyboard.press('Escape');
+  console.log('PASS: guided chat routing, safe text, medical boundary, referral copy, invitation arrival and first practice');
   const disabled = await browser.newContext();
   await disabled.addInitScript(() => {
     Object.defineProperty(window, "localStorage", {

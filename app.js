@@ -86,6 +86,7 @@ for (const [key, value] of Object.entries(state.history))
     ? [...new Set(value.filter((n) => Number.isInteger(n) && n >= 0 && n < 4))]
     : [];
 state.modal = null;
+if(/^demo-[a-f0-9]{12}$/.test(new URLSearchParams(location.search).get('ref')||'')) state.tab='Home';
 const checked = () => state.history[today()] || [];
 function streak() {
   let d = new Date(),
@@ -117,6 +118,7 @@ let modalTrigger = null;
 function openModal(type, id) {
   if(!state.modal) modalTrigger = document.activeElement;
   startJourney(type);
+  startCommunity(type);
   state.modal = { type, id };
   render();
   document.querySelector(".modal .x").focus();
@@ -206,7 +208,7 @@ function onboard() {
   return `<section class="section"><div class="card practice"><span class="pill">WELCOME · STEP ${k + 1} OF 3</span><h2>${["A gentle beginning", "Choose what interests you", resolveNextAction(state.persona, state.goal).title][k]}</h2><p class="muted">${["We’ll help you find your next meaningful step.", "Start with an interest; you can always change it.", resolveNextAction(state.persona, state.goal).description][k]}</p>${k === 1 ? `<div class="actions">${["Food", "Yoga", "Both"].map((x) => `<button class="btn ${state.goal === x ? "" : "ghost"}" onclick="update({goal:'${x}'})">${x}</button>`).join("")}</div>` : ""}<div class="actions"><button class="btn" onclick="update({onboard:${k + 1}})">${k === 2 ? "Finish setup" : "Continue"} →</button><button class="btn secondary" onclick="update({onboard:3})">Skip</button></div></div></section>`;
 }
 function home() {
-  return `${hero()}${onboard()}${practice()}${wellbeing()}${content()}${goals()}${workshop()}${stories()}`;
+  return `${invitationBanner()}${hero()}${onboard()}${practice()}${wellbeing()}${content()}${goals()}${workshop()}${inviteCard()}${stories()}`;
 }
 function secondary() {
   let p = state.tab;
@@ -219,6 +221,7 @@ function secondary() {
   return `<div class="section-title"><h2>Your journey</h2></div><div class="card practice"><h3>Welcome, Anand 🌱</h3><p class="muted">Demo profile. Preferences and daily check-ins save locally.</p><div class="switchline">Daily reminder (demo only)<input type="checkbox" aria-label="Daily reminder" ${state.reminder ? "checked" : ""} onchange="update({reminder:this.checked})"></div><button class="btn secondary" onclick="resetDemo()">Reset demo data</button></div>`;
 }
 function modal() {
+  const community=communityModal();if(community!==null)return community;
   const custom=specialModal(); if(custom!==null)return custom;
   if (!state.modal) return "";
   let m = state.modal;
@@ -285,7 +288,7 @@ function render() {
   const focusLabel = focus?.getAttribute("aria-label");
   const focusText = focus?.tagName === "BUTTON" ? focus.textContent : null;
   document.getElementById("app").innerHTML =
-    `<div id="page-content" ${state.modal ? "inert" : ""}>${header()}${!storageAvailable ? '<div class="notice" role="status">Storage is unavailable. You can still explore; changes last for this visit.</div>' : ""}<div class="content screen">${state.tab === "Home" ? home() : secondary()}<p class="hint">Candidate concept · not an official Satvic product<br>Demo states & screenshot-derived visuals for research only.</p></div>${nav()}</div>${modal()}`;
+    `<div id="page-content" ${state.modal ? "inert" : ""}>${header()}${!storageAvailable ? '<div class="notice" role="status">Storage is unavailable. You can still explore; changes last for this visit.</div>' : ""}<div class="content screen">${state.tab === "Home" ? home() : secondary()}<p class="hint">Candidate concept · not an official Satvic product<br>Demo states & screenshot-derived visuals for research only.</p></div>${nav()}<button class="guide-launcher" onclick="openModal('chat')" aria-label="Open Satvic guide">Ask a guide <span aria-hidden="true">↗</span></button></div>${modal()}`;
   if (!state.modal) {
     const target = focusLabel
       ? document.querySelector(`[aria-label="${CSS.escape(focusLabel)}"]`)
@@ -300,7 +303,7 @@ function render() {
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && state.modal) closeModal();
   if (e.key === "Tab" && state.modal) {
-    const items = [...document.querySelectorAll(".modal button,.modal a")];
+    const items = [...document.querySelectorAll(".modal button,.modal a,.modal input:not([disabled])")];
     const first = items[0],
       last = items.at(-1);
     if (e.shiftKey && document.activeElement === first) {

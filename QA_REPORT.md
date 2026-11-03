@@ -42,3 +42,9 @@ The official homepage returned HTTP 403 from the cloud environment. The Stories 
 ## Reference header update
 
 Added a full-width muted green website header with supplied white logo, desktop navigation dropdowns, Contact Us pill and a compact mobile menu. Added browser checks for mobile opening/closing, Escape, dropdown navigation to Recipes and Workshops, and desktop dropdown access. Existing full interaction suite and 320/375/390/430/1280px overflow checks are retained; screenshots refreshed. Careers and Contact intentionally lead to the official homepage because dedicated route URLs remain unverified. Shop/Books clearly identify the supplied external development store. This update does not assert external-link reachability. Manual screen-reader and real-device checks remain pending.
+
+## Community 4 update
+
+Added `community.js`: a clearly labeled scripted guide with quick replies and typed input, deterministic content routing, medical-question boundaries, escaped message rendering and no external chat requests. Added referral invitation generation, clipboard/manual-copy and native-share paths, a valid-code arrival banner and a direct free-practice CTA. Referrals are marked as demo, with no tracking or incentives. Refined typography, card spacing, color consistency and button effects while retaining the supplied logo and website navigation.
+
+Browser coverage adds chat recipe routing, typed medical-question handling, HTML text escaping, invitation generation, clipboard copy, invited arrival and free-practice access. Native OS share sheets and manual clipboard fallback require device review and are not claimed tested. Existing journey and responsive checks remain required. Updated screenshots include guide and referral dialogs. Official-site live access remains unverified; visual direction follows the supplied references. No claim of increased funnel conversion is made without real measurements.

@@ -63,3 +63,9 @@ Choose **Deploy from a branch**, branch **main**, folder **/ (root)**, then **Sa
 ## Guided first-value experience
 
 `journey.js` implements a timed breathing guide, optional feelings check-in and completion choices before broader discovery. The timer stops on dialog dismissal and supports pause/resume and skipping. Only completed practices can be logged. An eight-question optional wellbeing reflection shows a transparent habits tally rather than a medical assessment; its answers and feelings are not persisted. The supplied SVG brand mark is shown on a green backing. Persona animations respect reduced-motion preferences. Official story discovery links to the supplied Satvic homepage because individual story URLs could not be verified from this environment.
+
+## Guided chat and friend invitations
+
+The persistent **Ask a guide** button opens a local, scripted conversational guide for practices, recipes, programs and invitations. Typed messages are rendered as text, limited to 300 characters and not sent to a server. The guide is explicitly labeled as scripted, not AI or a human adviser. It does not collect leads or provide medical advice.
+
+Home includes **Invite a friend**. A random device-local demo code creates a link with a `ref` query parameter. Copy uses the browser clipboard with manual-copy fallback; Share uses the native share sheet where supported. Valid incoming demo links show a welcome and a direct free-practice action. Codes contain no account identity. This is an interactive referral concept: no attribution backend, referral counts, rewards, signup tracking, email campaigns or conversion analytics are implemented. Production referral eligibility, incentives and consent would require a separate defined service.
