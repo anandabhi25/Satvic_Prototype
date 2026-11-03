@@ -196,9 +196,21 @@ const fs = require("node:fs");
   console.log("PASS: viewport overflow checks and six screenshots");
   await page.emulateMedia({reducedMotion:'reduce'});
   assert.equal(await page.locator('.persona-icon').evaluate(e=>getComputedStyle(e).animationName),'none');
-  assert.equal(await page.locator('.brand-logo').evaluate(e=>e.complete&&e.naturalWidth>0),true);
+  assert.equal(await page.locator('.site-logo img').evaluate(e=>e.complete&&e.naturalWidth>0),true);
   assert.equal(await page.getByRole('link',{name:'Read official stories ↗'}).getAttribute('href'),'https://satvicmovement.org/');
   console.log('PASS: reduced motion, supplied SVG loads, official homepage story link');
+  await page.setViewportSize({width:390,height:844});
+  await page.locator('.site-menu > summary').click();
+  await page.getByRole('navigation',{name:'Website navigation',exact:true}).getByText('Verticals',{exact:true}).click();
+  await page.getByRole('button',{name:'Food & recipes',exact:true}).click();
+  assert.equal(await page.evaluate(()=>state.tab),'Recipes');
+  assert.equal(await page.locator('.site-menu').getAttribute('open'),null);
+  await page.locator('.site-menu > summary').click();await page.keyboard.press('Escape');
+  assert.equal(await page.locator('.site-menu').getAttribute('open'),null);
+  await page.setViewportSize({width:1280,height:900});
+  await page.getByRole('navigation',{name:'Website navigation',exact:true}).getByText('Workshops',{exact:true}).click();
+  await page.getByRole('button',{name:'Discover workshops',exact:true}).click();assert.equal(await page.evaluate(()=>state.tab),'Workshops');
+  console.log('PASS: mobile header menu, dropdown routing, Escape and desktop dropdown');
   const disabled = await browser.newContext();
   await disabled.addInitScript(() => {
     Object.defineProperty(window, "localStorage", {
