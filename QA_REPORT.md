@@ -51,3 +51,9 @@ Mobile home and player screenshots were visually reviewed during implementation.
 | Offline network recovery, quota errors, cross-tab sync and midnight/DST rollover | Later robustness checks | NOT TESTED in current suite |
 
 See `EVIDENCE_AND_BACKLOG.md` for REVIEW/OFFICIAL/SCREENSHOT/HYPOTHESIS/PROPOSAL boundaries and separate phase-2 work. No checkout, enrollment, refund, testimonial outcome, referral reward or production analytics event is fabricated.
+
+## Layout 5 update — 3 November 2026
+
+`npm test` passed after restructuring Home into the requested seven sections and expanding desktop widths. New browser assertions verify exact section order, a desktop hero wider than 1000px at 1440px viewport width, primary heading scale, static desktop app navigation, section-link focus transfer, the embedded Satvic Saathi entry point, fixed mobile bottom navigation and hidden mobile section links. Existing 320/375/390/430/1280 overflow checks, unit tests and all functional regressions passed. Current captures include `layout5-desktop.png` and `layout5-mobile.png` in addition to refreshed `v2-*` screenshots. Main-flow browser error capture remained empty.
+
+The design retains the logo, website header, earthy/sage/cream palette, imagery and subtle button glow. The desktop home screenshot was visually reviewed; a small inherited card-heading style discovered during that review was corrected and its resulting headline scale is now asserted. Source access was retried and returned HTTP 403; supplied visual references were used. GitHub Pages deployment and live content cannot be independently verified from this environment. Manual screen-reader, physical-device and full contrast certification remain pending as above.

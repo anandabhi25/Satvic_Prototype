@@ -249,6 +249,16 @@ const fs = require("node:fs");
   await p.goto(invite);await p.getByRole('heading',{name:'A quiet beginning, shared with you.',exact:true}).waitFor();await btn('Try my first pause').click();await btn('Skip practice').click();await btn('Skip check-in').click();await btn('Back to my day').click();
   await p.locator('.site-menu > summary').click();await p.keyboard.press('Escape');assert.equal(await p.locator('.site-menu').getAttribute('open'),null);
   console.log('PASS: food-interest free recipe route, wellbeing all-skip, invitation clipboard/arrival and mobile menu Escape');
+  await p.setViewportSize({width:1440,height:1000});
+  assert.deepEqual(await p.locator('.home-band').evaluateAll(es=>es.map(e=>e.id)),['next-step','free-discovery','learning-home','wellbeing-home','programs-home','friends-home','stories-home']);
+  assert.equal(await p.getByRole('navigation',{name:'Primary navigation'}).evaluate(e=>getComputedStyle(e).position),'static');
+  assert.ok(await p.locator('.hero').evaluate(e=>e.getBoundingClientRect().width>1000));
+  assert.ok(await p.locator('.hero h2').evaluate(e=>parseFloat(getComputedStyle(e).fontSize)>=48));
+  await p.getByRole('navigation',{name:'Dashboard sections'}).getByRole('link',{name:'My Learning',exact:true}).click();assert.equal(await p.evaluate(()=>document.activeElement.id),'learning-home');
+  await btn('Chat with Satvic Saathi').click();await p.getByRole('dialog',{name:'Ask Satvic Saathi 🌱',exact:true}).waitFor();await close();
+  await p.evaluate(()=>window.scrollTo(0,0));await p.waitForTimeout(150);await p.screenshot({path:'screenshots/layout5-desktop.png',fullPage:true});
+  await p.setViewportSize({width:390,height:844});assert.equal(await p.getByRole('navigation',{name:'Primary navigation'}).evaluate(e=>getComputedStyle(e).position),'fixed');assert.equal(await p.getByRole('navigation',{name:'Dashboard sections'}).isVisible(),false);await p.screenshot({path:'screenshots/layout5-mobile.png',fullPage:true});
+  console.log('PASS: agreed section order, wide desktop layout, heading scale, section navigation/focus, embedded chatbot and mobile bottom navigation');
   const off = await browser.newContext();
   await off.addInitScript(() =>
     Object.defineProperty(window, "localStorage", {

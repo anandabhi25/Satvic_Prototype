@@ -45,3 +45,9 @@ Tests require Node.js and Chromium at `/usr/bin/chromium`, or set `CHROMIUM_PATH
 ## Existing features retained
 
 The calm header, supplied logo, four animated persona symbols/reduced-motion fallback, breathing journey, optional wellbeing habits reflection, five app destinations, demo invitations and official story-discovery link remain. Referral codes have no account attribution, rewards or tracking. The story card directs users to the official homepage; individual stories were not independently verified. No credentials are required.
+
+## Layout 5 — website-inspired dashboard
+
+The personalized app now expands into a spacious desktop layout, retaining the supplied logo and website-style header. Home follows the agreed sequence: next action → free recipes/practice → My Learning overview → wellbeing → optional programs/concepts → referrals → official stories. Desktop provides app tabs and sticky section links with keyboard focus destinations; mobile keeps bottom navigation and stacked sections. Cream/sage/teal bands, earthy pill buttons with restrained decorative glow, larger imagery and editorial headings follow the supplied official-site references. The live official site still returned HTTP 403, so no pixel-exact reproduction or current-site CSS extraction is claimed.
+
+Satvic Saathi has both a discreet persistent launcher and a visible chat entry in the programs section. It remains the research-defined source-bound FAQ chatbot. All access, preview and proposed-price labels remain. Current asset version is `satvic-layout-5`; the footer reads **Layout 5**. Screenshots `layout5-desktop.png` and `layout5-mobile.png` capture the new layout; the `v2-*` functional captures are refreshed by the same test suite.
