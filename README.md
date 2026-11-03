@@ -1,71 +1,47 @@
-# Your Satvic Today
+# Your Satvic Today — Research v2
 
-A mobile-first candidate concept for the Satvic Movement dashboard, improved from the supplied standalone starter. Built with vanilla HTML, CSS and JavaScript. This is **not an official Satvic product**.
+A fully local, vanilla HTML/CSS/JavaScript candidate concept. It is **not an official Satvic product**, and it does not claim to fix the live app or reproduce reported production defects.
 
-## Run
+## Run and test
 
-From this repository:
+From `/workspace/Satvic_Prototype`:
 
 ```sh
 python3 -m http.server 8000
 ```
 
-Visit port 8000 in your own development browser. The app has no runtime package dependencies, API credentials, account connection, checkout, or build step. Serve over HTTP to use browser persistence reliably.
-
-## Explore
-
-- Switch the clearly labeled demo persona between new, returning, enrolled and completed learners.
-- Complete or skip three-step onboarding; Food, Yoga or Both can be changed later.
-- Open a free breathing prompt or resume the simulated enrolled program.
-- Toggle or undo four optional daily habits. Streaks use local calendar dates and retain yesterday's streak until today's first check-in.
-- Explore Home, Recipes, Workshops, Explore (Shop and Potluck), and Profile.
-- Switch off workshop availability to see evergreen yoga discovery.
-- Open recipe and class dialogs; Escape, close controls, focus trapping and focus restoration are supported.
-- Profile offers a simulated reminder preference and a confirmed local-data reset.
-
-Storage is local to this browser, not a real account. If storage is disabled, changes remain usable for the current visit. Class progress and availability are explicitly simulated. No real enrollment, schedule, video playback, notification delivery or payment is implemented.
-
-## Test
-
-Node.js and Chromium are needed only for the test suite:
+Keep that server running. For browser tests in a second terminal:
 
 ```sh
 npm ci
-# Debian/Ubuntu: install Chromium through your OS package manager if absent.
 npm test
-# Or select an existing Chromium executable:
-CHROMIUM_PATH=/path/to/chromium npm test
 ```
 
-Keep the Python server running on port 8000 during tests. The suite uses Playwright with system Chromium (`/usr/bin/chromium` by default), asserts actual interactions and creates screenshots in `screenshots/`. See [QA_REPORT.md](QA_REPORT.md) for results and limits.
+Tests require Node.js and Chromium at `/usr/bin/chromium`, or set `CHROMIUM_PATH` to an installed Chromium executable. On Debian/Ubuntu install Chromium using the OS package manager if absent. Serving the application needs only Python 3; there is no build, paid key or account credential. GitHub Pages serves these files directly. Versioned asset URLs distinguish this release (`research-v2`).
 
-## Files and provenance
+## Demo runbook
 
-- `index.html`, `styles.css`, `app.js`: standalone application and deterministic `resolveNextAction()`.
-- `assets/`: original screenshot-derived images supplied in `satvic_prototype.zip`, retained for research/prototyping. Recipe crops exclude embedded rating badges. The meal-planning screenshot is identified as illustrative rather than a photo of the named smoothie.
-- `tests/prototype.cjs`: automated browser checks.
-- `screenshots/`: captured concept views after onboarding plus simulated class dialog.
+1. **Curious Kavya:** complete or skip optional onboarding. Try the free two-minute pause, or Recipes → Quick & Easy → Simple fruit bowl. The fruit-bowl guide is original prototype content; use its practical-completion control after preparing it. Checkbox-only habit logging does not unlock experiments.
+2. After completing a breathing practice or using the recipe, explore optional ₹50/₹100/₹200/₹250 concepts. Every card says **Concept only — not available to purchase**, describes proposed benefits/terms and collects only local demo interest. No payment, reservation or contact collection occurs.
+3. **Committed Anand:** resume the sample lesson from Home. Play/pause, rewind 10 seconds, seek, replay and select 0.75× or 1× speed. This is an original simulated 90-second timeline, not licensed Satvic video. My Learning includes sample notes, progress and fixed illustrative access terms referenced to 3 November 2026.
+4. In My Learning, switch current/recording/expired/empty/duplicate enrollment cases. Current sample class wins; eligible recording follows; absent or expired rights lead to free discovery. Duplicate records do not create duplicate classes.
+5. Search/filter recipes, save/unsave and return from detail without losing category or scroll. The screenshot-derived Chocolate Milkshake and Glowing Green Juice are **Preview**, with official source links; do not mistake them for locally available full recipes. The official free collection is linked separately.
+6. Ask **Satvic Saathi** about free recipes, notes, replay, class access, pricing, sign-in/refunds or store. It uses illustrative allowlisted FAQ records with source IDs, feedback controls and official-site human-support fallback. It cannot see account data, invent policies or provide medical advice.
+7. Explore retains Workshops, Daily Yoga preview, Shop/books and Potluck. Current program prices, schedules, renewal and expiry are unknown: confirm on the official source. Switching workshop availability off shows evergreen content.
+8. Profile contains the local demo event log and reset. No event stream, chat, wellbeing answers or referral analytics are sent to a server. Device-local preference/history data and random referral codes can persist if storage permits.
 
-Source links are retained from the supplied brief. The dashboard reference could not be accessed from this cloud environment (HTTP proxy 403); no claim is made that external links, current cohorts, prices or availability were live-verified. The marketplace link is explicitly labeled as an external development store. These images are not represented as licensed production promotional assets.
+## Structure
 
-## Design
+- `model.js`: pure resolver, FAQ/source register, concept definitions and calendar streak; directly unit-tested.
+- `v2.js`: recipe library, sample learning resources, simulated player, source-bound FAQ, concept dialogs and local telemetry.
+- `app.js`: application state, navigation, personas, rendering and modal accessibility.
+- `journey.js`: breathing and optional non-clinical wellbeing reflection.
+- `community.js`: demo friend invitation generation/copy/share; earlier discovery guide is superseded by the v2 FAQ.
+- `styles.css`, `assets/`: supplied logo, screenshot-derived images and cream/sage/earth styling. Images are research materials, not a commercial rights clearance. The simple fruit-bowl image is explicitly illustrative.
+- `tests/model.cjs`, `tests/research-v2.cjs`: current unit and browser suites. `tests/prototype.cjs` is the historical pre-v2 suite, retained for reference and superseded because navigation and FAQ behavior changed.
+- `screenshots/v2-*`: current-release evidence. Earlier screenshot filenames are historical.
+- `QA_REPORT.md`, `EVIDENCE_AND_BACKLOG.md`: executed checks, limitations, source classes and deferred work.
 
-Warm cream surfaces, forest-green actions, editorial serif headings, restrained lime illuminated button borders, generous spacing, local imagery and reduced-motion support. Primary recommendations are deterministic demo fixtures: enrolled content, last free practice, continued consistency or a beginner step. Real active-class priority requires authoritative entitlement and schedule data; no live class is invented in this prototype.
+## Existing features retained
 
-## Public browser preview with GitHub Pages
-
-The root directory is ready for static GitHub Pages hosting (`.nojekyll` disables Jekyll processing). A repository administrator can enable it at:
-
-https://github.com/anandabhi25/Satvic_Prototype/settings/pages
-
-Choose **Deploy from a branch**, branch **main**, folder **/ (root)**, then **Save**. GitHub will display the deployment URL when the build succeeds. The expected project URL is `https://anandabhi25.github.io/Satvic_Prototype/`; it is not confirmed live merely by committing these files. If Pages is unavailable for this repository's visibility and account plan, GitHub's settings will show that limitation; do not change repository visibility without explicit approval.
-
-## Guided first-value experience
-
-`journey.js` implements a timed breathing guide, optional feelings check-in and completion choices before broader discovery. The timer stops on dialog dismissal and supports pause/resume and skipping. Only completed practices can be logged. An eight-question optional wellbeing reflection shows a transparent habits tally rather than a medical assessment; its answers and feelings are not persisted. The supplied SVG brand mark is shown on a green backing. Persona animations respect reduced-motion preferences. Official story discovery links to the supplied Satvic homepage because individual story URLs could not be verified from this environment.
-
-## Guided chat and friend invitations
-
-The persistent **Ask a guide** button opens a local, scripted conversational guide for practices, recipes, programs and invitations. Typed messages are rendered as text, limited to 300 characters and not sent to a server. The guide is explicitly labeled as scripted, not AI or a human adviser. It does not collect leads or provide medical advice.
-
-Home includes **Invite a friend**. A random device-local demo code creates a link with a `ref` query parameter. Copy uses the browser clipboard with manual-copy fallback; Share uses the native share sheet where supported. Valid incoming demo links show a welcome and a direct free-practice action. Codes contain no account identity. This is an interactive referral concept: no attribution backend, referral counts, rewards, signup tracking, email campaigns or conversion analytics are implemented. Production referral eligibility, incentives and consent would require a separate defined service.
+The calm header, supplied logo, four animated persona symbols/reduced-motion fallback, breathing journey, optional wellbeing habits reflection, five app destinations, demo invitations and official story-discovery link remain. Referral codes have no account attribution, rewards or tracking. The story card directs users to the official homepage; individual stories were not independently verified. No credentials are required.

@@ -1,50 +1,53 @@
-# Prototype QA — 3 November 2026
+# Research v2 QA — 3 November 2026
 
-## Verified
+Candidate concept, not an official Satvic application. This report covers the current `research-v2` release; previous screenshot filenames and `tests/prototype.cjs` describe historical releases.
 
-Ran `npm ci`, `node --check app.js`, `npm test` and `git diff --check` in the cloud environment. Application served by Python on port 8000; browser checks used headless system Chromium with the Asia/Kolkata timezone. Final browser suite passed all nine reported check groups, with no uncaught browser runtime errors.
+## Executed environment and commands
 
-1. All four personas display their expected primary recommendation.
-2. Three-step onboarding completes; optional interest and completion persist after reload; skipping works.
-3. Habits toggle, undo and persist across reload. Dated history covers today/yesterday continuity and a broken sequence.
-4. Free practice opens and logs a breathing break idempotently. Enrolled class simulation marks a session started.
-5. Dialog keyboard focus enters the close control, wraps forward/backward, closes with Escape, and returns to the trigger. Close control also tested.
-6. All five navigation destinations work. Recipe dialog opens with the correct title. Unavailable workshops lead to evergreen yoga. New users have no enrolled-resume CTA.
-7. No document horizontal overflow at 320, 375, 390, 430 and 1280px. Recipe cards intentionally scroll inside their own row.
-8. Storage-disabled mode remains interactive and announces its limitation. Malformed persisted state recovers to useful defaults.
-9. Confirmed reset clears saved habit history.
+Cloud Linux, Python HTTP server on port 8000, system Chromium via Playwright, Asia/Kolkata browser timezone. `npm test` runs `tests/model.cjs` and `tests/research-v2.cjs`. `node --check` and `git diff --check` supplement the functional tests. Browser time is advanced with Playwright's controlled clock for breathing and lesson playback; no live media or account service is used.
 
-## Visual review
+## Current results
 
-Inspected generated mobile and desktop captures. Preserved green/cream styling, supplied imagery, Anand, all destinations and demo labeling. Added subtle illuminated primary buttons. Cropped recipe imagery to omit screenshot rating badges; retained source assets unchanged. Screenshot views show onboarding completed; the fresh-browser onboarding is tested separately.
+| Check | Outcome | Evidence |
+|---|---|---|
+| Resolver priority, no/expired/duplicate/unauthorized enrollment fixtures | PASS | Pure model assertions; current sample class precedes recording, then free resume/starter |
+| FAQ allowlist, medical boundary, unknown fallback, source IDs | PASS | Pure assertions and browser source-link queries |
+| Proposed offer definitions and calendar streak | PASS | Pure benefits/terms/price and consecutive-calendar-day assertions |
+| Four personas and optional onboarding completion/skip/reload | PASS | Browser interactions; food-interest opens original free guide |
+| Habit toggle/undo/reload; checkbox does not unlock concepts | PASS | Browser assertions on streak, persistence and gated concept cards |
+| Recipe search/filter/save/unsave/reload and detail back restoration | PASS | Category and exact scroll-offset assertions |
+| Practical free recipe completion and optional concepts | PASS | No offer cards before meaningful completion; four labeled cards after completion; local intent event |
+| Beginner timeline play/pause/rewind/replay/seekable control and 0.75× speed | PASS for play/pause/rewind/replay/speed/keyboard seek | Browser clock and numeric timeline assertions; keyboard seek is tested; direct pointer-drag behavior is NOT TESTED |
+| My Learning notes and current/recording/expired/empty/duplicate cases | PASS | Browser resource title, expiry and hidden-access assertions |
+| Source-bound FAQ, feedback, unknown reply and support link | PASS | Browser clicks, source URLs and local event assertions |
+| No workshop → evergreen; unknown total/term disclosure | PASS | Browser toggle and pricing-dialog text |
+| Complete breathing practice unlocks optional ideas | PASS | Controlled 120-second journey; completion state assertion |
+| 320/375/390/430/1280px document overflow | PASS | Browser width assertions and captured screenshots |
+| Escape dialog close, mobile menu close, reduced motion | PASS for tested paths | Browser key actions and computed animation assertion; full keyboard traversal audit is NOT TESTED |
+| Retained wellbeing and referrals | PASS for all-skip result, copy and arrival | Clipboard content and invitation/free-practice route assertions |
+| Storage-disabled operation and uncaught page errors | PASS | Separate denied-storage context; no uncaught page errors in tested main flow |
 
-Artifacts: `screenshots/home-{320,375,390,430,1280}.png`, `screenshots/class-dialog-390.png`. Fixed navigation appears at the viewport bottom within full-page screenshots; it stays at the window bottom during normal scrolling.
+## Current screenshots
 
-## Pending and limitations
+- `screenshots/v2-home-{320,375,390,430,1280}.png`: home after a completed free action, not a fresh install.
+- `screenshots/v2-enrolled.png`: sample current-class persona.
+- `screenshots/v2-player.png`: simulated timeline at gentle speed.
+- `screenshots/v2-concepts.png`: four explicitly non-purchasable price hypotheses.
+- `screenshots/v2-faq.png`: source-bound FAQ and fallback.
 
-- Manual end-to-end keyboard review and VoiceOver/screen-reader testing are pending. Automated keyboard checks do not establish screen-reader usability or WCAG 2.2 AA conformance.
-- Physical iOS/Android devices, Safari/Firefox, zoom, high-contrast settings and a complete contrast/accessibility audit are pending. Reduced-motion rules are implemented but were not separately audited.
-- No real accounts, entitlements, live schedules, video, reminders, notifications, commerce, analytics collection or medical recommendations are connected. Active-class precedence and multiple real enrollments require future authoritative data integration.
-- The requested dashboard URL returned proxy HTTP 403. External source pages, marketplace and current program details were not live-validated. The UI directs people to the source rather than inventing availability or price.
-- Supplied visual assets are research materials, not a production licensing assertion. The app makes no new efficacy, cure, testimonial, rating or payment-success claims.
-- Repository tests verify browser behavior and selected calendar sequences; daylight-saving transitions, midnight rollover while continuously open, storage quota failure after startup and cross-tab synchronization were not separately tested.
+Mobile home and player screenshots were visually reviewed during implementation. Fixed bottom navigation and the help launcher appear at the viewport bottom within full-page screenshots, as they do during normal scrolling.
 
-This is a working concept prototype, not a production-readiness certification.
+## Open issues and limits
 
-## November 3 update: first-value journey
+| Item | Severity / scope | Status |
+|---|---|---|
+| Full VoiceOver/screen-reader, contrast/zoom and WCAG 2.2 AA audit | Medium before broader testing | NOT TESTED; no certification claim |
+| Physical iOS/Android devices and Safari/Firefox | Medium | NOT TESTED |
+| Native share sheet, clipboard-denial fallback and range-pointer dragging | Low for concept | Implemented, NOT TESTED on real devices |
+| Real workshop access, live class schedule, current price, billing and support policies | Production dependency | No connected backend; illustrative fixtures only |
+| Official sources' present availability and per-story URLs | External verification gap | Not live-validated in this release; supplied research/source ledger used with attribution |
+| Startup freezes, latency, buffering and crash diagnosis | Post-prototype engineering | NOT IMPLEMENTED; no production-fix claim |
+| Cohort conversion, retention, affordability and margin hypotheses | Research | NOT MEASURED; no numerical uplift claimed |
+| Offline network recovery, quota errors, cross-tab sync and midnight/DST rollover | Later robustness checks | NOT TESTED in current suite |
 
-Added the supplied SVG logo on a green backing for contrast, mint/cream/terracotta styling, four animated persona symbols and reduced-motion fallback. Added a two-minute breathing guide with a natural-breathing alternative, pause/resume, skip, optional feelings check-in and completion choices. Only a completed practice is logged; skipping does not count as completion. Feelings are ephemeral. The optional eight-question wellbeing score excludes skipped answers, explains its arithmetic, handles all-skipped input without inventing a score and keeps answers in memory only.
-
-Updated automated Chromium checks cover a full 120-second journey using Playwright's controlled clock, a paused interval, resume, optional check-in, completed-practice logging, skipping without logging, scoring/back navigation/all-skip, no score answers persisted, reduced-motion CSS, SVG loading and the official homepage link. Existing persona, onboarding, persistence, focus, navigation, viewport and storage recovery tests remain in the suite. Updated mobile/desktop screenshots plus breathing completion and wellbeing result captures are included. Manual VoiceOver and real-device review remain pending.
-
-The official homepage returned HTTP 403 from the cloud environment. The Stories of Success card therefore links to the user-specified official homepage and explicitly directs users to its Stories of Success section. Individual story URLs, current testimonial copy and images were not retrievable or verified and have not been fabricated. Colors follow the user-supplied visual references rather than a live site CSS extraction.
-
-## Reference header update
-
-Added a full-width muted green website header with supplied white logo, desktop navigation dropdowns, Contact Us pill and a compact mobile menu. Added browser checks for mobile opening/closing, Escape, dropdown navigation to Recipes and Workshops, and desktop dropdown access. Existing full interaction suite and 320/375/390/430/1280px overflow checks are retained; screenshots refreshed. Careers and Contact intentionally lead to the official homepage because dedicated route URLs remain unverified. Shop/Books clearly identify the supplied external development store. This update does not assert external-link reachability. Manual screen-reader and real-device checks remain pending.
-
-## Community 4 update
-
-Added `community.js`: a clearly labeled scripted guide with quick replies and typed input, deterministic content routing, medical-question boundaries, escaped message rendering and no external chat requests. Added referral invitation generation, clipboard/manual-copy and native-share paths, a valid-code arrival banner and a direct free-practice CTA. Referrals are marked as demo, with no tracking or incentives. Refined typography, card spacing, color consistency and button effects while retaining the supplied logo and website navigation.
-
-Browser coverage adds chat recipe routing, typed medical-question handling, HTML text escaping, invitation generation, clipboard copy, invited arrival and free-practice access. Native OS share sheets and manual clipboard fallback require device review and are not claimed tested. Existing journey and responsive checks remain required. Updated screenshots include guide and referral dialogs. Official-site live access remains unverified; visual direction follows the supplied references. No claim of increased funnel conversion is made without real measurements.
+See `EVIDENCE_AND_BACKLOG.md` for REVIEW/OFFICIAL/SCREENSHOT/HYPOTHESIS/PROPOSAL boundaries and separate phase-2 work. No checkout, enrollment, refund, testimonial outcome, referral reward or production analytics event is fabricated.
