@@ -69,17 +69,39 @@ const fs = require("node:fs");
   assert.equal(await page.evaluate(() => streak()), 1);
   console.log("PASS: habit toggle/undo/reload and dated consecutive streak");
   await page.evaluate(() => update({ goal: "Yoga" }));
+  await page.evaluate(()=>update({history:{}}));
+  await page.clock.install();
   await button("Try a two-minute pause").click();
-  await button("Log my breathing break ✓").click();
-  assert.equal(await page.getByRole("dialog").count(), 0);
-  await button("Try a two-minute pause").click();
-  await button("Log my breathing break ✓").click();
-  assert.equal(
-    await page
-      .getByLabel("Take a quiet breathing break", { exact: true })
-      .isChecked(),
-    true,
-  );
+  await button("Begin breathing").click();
+  await page.clock.runFor(10000);
+  await button("Pause").click();
+  const elapsed=await page.evaluate(()=>breath.elapsed);
+  await page.clock.runFor(5000);
+  assert.equal(await page.evaluate(()=>breath.elapsed),elapsed);
+  await button("Resume").click();
+  await page.clock.runFor(110000);
+  await page.getByRole('heading',{name:'How do you feel?',exact:true}).waitFor();
+  await button('More settled').click();
+  await button('Save practice and continue').click();
+  await page.screenshot({path:'screenshots/breathing-complete-390.png'});
+  await button('Back to my day').click();
+  assert.equal(await page.getByLabel('Take a quiet breathing break',{exact:true}).isChecked(),true);
+  await page.evaluate(()=>update({history:{}}));
+  await button('Try a two-minute pause').click();
+  await button('Skip practice').click();await button('Skip check-in').click();
+  await button('Back to my day').click();
+  assert.equal(await page.getByLabel('Take a quiet breathing break',{exact:true}).isChecked(),false);
+  await button('Reflect on my day →').click();
+  await button('Yes').click();await button('Previous question').click();await button('A little').click();
+  await button('Not today').click();for(let i=0;i<6;i++)await button('Skip').click();
+  assert.match(await page.locator('.score-number').textContent(),/0.5 \/ 2/);
+  await page.screenshot({path:'screenshots/wellbeing-result-390.png'});
+  assert.equal(await page.evaluate(()=>localStorage.getItem(KEY).includes('scoreAnswers')),false);
+  await page.getByLabel('Close dialog',{exact:true}).click();
+  await button('Reflect on my day →').click();for(let i=0;i<8;i++)await button('Skip').click();
+  assert.equal(await page.locator('.score-number').textContent(),'No score');
+  await page.keyboard.press('Escape');
+  console.log('PASS: timed breathing, pause/resume, optional feeling, completion, skip without logging, score/back/all-skip/privacy');
   await persona.selectOption("enrolled");
   await button("Resume demo class").click();
   assert.equal(await page.getByRole("dialog").count(), 1);
@@ -172,6 +194,11 @@ const fs = require("node:fs");
   await page.screenshot({ path: "screenshots/class-dialog-390.png" });
   await page.keyboard.press("Escape");
   console.log("PASS: viewport overflow checks and six screenshots");
+  await page.emulateMedia({reducedMotion:'reduce'});
+  assert.equal(await page.locator('.persona-icon').evaluate(e=>getComputedStyle(e).animationName),'none');
+  assert.equal(await page.locator('.brand-logo').evaluate(e=>e.complete&&e.naturalWidth>0),true);
+  assert.equal(await page.getByRole('link',{name:'Read official stories ↗'}).getAttribute('href'),'https://satvicmovement.org/');
+  console.log('PASS: reduced motion, supplied SVG loads, official homepage story link');
   const disabled = await browser.newContext();
   await disabled.addInitScript(() => {
     Object.defineProperty(window, "localStorage", {

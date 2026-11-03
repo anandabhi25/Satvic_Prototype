@@ -58,7 +58,7 @@ const recipes = [
   {
     title: "Glowing Green Juice",
     src: "assets/green-juice.jpg",
-    desc: "1From the candidate dashboard",
+    desc: "From the candidate dashboard",
     url: "https://dashboard.satvicmovement.org/",
   },
   {
@@ -115,12 +115,14 @@ function begin() {
 }
 let modalTrigger = null;
 function openModal(type, id) {
-  modalTrigger = document.activeElement;
+  if(!state.modal) modalTrigger = document.activeElement;
+  startJourney(type);
   state.modal = { type, id };
   render();
   document.querySelector(".modal .x").focus();
 }
 function closeModal() {
+  clearInterval(breathTimer);
   state.modal = null;
   render();
   if (modalTrigger) {
@@ -134,7 +136,7 @@ function link(url) {
   window.open(url, "_blank", "noopener,noreferrer");
 }
 function header() {
-  return `<header class="top"><div class="brand"><div class="logo">✺ satvic <span>MOVEMENT</span></div><button class="avatar" aria-label="Open profile" onclick="tab('Profile')">☺</button></div><div class="eyebrow">Your satvic today 🌿</div><h1>Namaste, Anand</h1><div class="muted">A little nourishment. A little movement. A moment for you.</div><div class="statebar"><label><span class="hint">Demo persona · simulated</span><br><select aria-label="Demo persona · simulated" onchange="persona(this.value)"><option value="new" ${state.persona === "new" ? "selected" : ""}>New explorer</option><option value="returning" ${state.persona === "returning" ? "selected" : ""}>Returning member</option><option value="enrolled" ${state.persona === "enrolled" ? "selected" : ""}>Enrolled learner</option><option value="completed" ${state.persona === "completed" ? "selected" : ""}>Completed program</option></select></label><span class="badge">🌱 ${streak() ? streak() + " day practice streak" : "Begin your journey"}</span></div></header>`;
+  return `<header class="top"><div class="brand"><img class="brand-logo" src="assets/satvic-logo.svg" alt="Satvic Movement" width="156" height="52"><button class="avatar" aria-label="Open profile" onclick="tab('Profile')">☺</button></div><div class="eyebrow">Your satvic today 🌿</div><h1>Namaste, Anand</h1><div class="muted">A little nourishment. A little movement. A moment for you.</div><div class="statebar"><label><span class="hint">Demo persona · simulated</span><br><select aria-label="Demo persona · simulated" onchange="persona(this.value)"><option value="new" ${state.persona === "new" ? "selected" : ""}>New explorer</option><option value="returning" ${state.persona === "returning" ? "selected" : ""}>Returning member</option><option value="enrolled" ${state.persona === "enrolled" ? "selected" : ""}>Enrolled learner</option><option value="completed" ${state.persona === "completed" ? "selected" : ""}>Completed program</option></select></label><span class="badge"><span class="persona-icon ${state.persona}" aria-hidden="true">${({new:"🌱",returning:"🍃",enrolled:"🪷",completed:"☀"})[state.persona]}</span> ${streak() ? streak() + " day practice streak" : "Begin your journey"}</span></div></header>`;
 }
 function resolveNextAction(persona, interest) {
   if (persona === "enrolled")
@@ -201,7 +203,7 @@ function onboard() {
   return `<section class="section"><div class="card practice"><span class="pill">WELCOME · STEP ${k + 1} OF 3</span><h2>${["A gentle beginning", "Choose what interests you", resolveNextAction(state.persona, state.goal).title][k]}</h2><p class="muted">${["We’ll help you find your next meaningful step.", "Start with an interest; you can always change it.", resolveNextAction(state.persona, state.goal).description][k]}</p>${k === 1 ? `<div class="actions">${["Food", "Yoga", "Both"].map((x) => `<button class="btn ${state.goal === x ? "" : "ghost"}" onclick="update({goal:'${x}'})">${x}</button>`).join("")}</div>` : ""}<div class="actions"><button class="btn" onclick="update({onboard:${k + 1}})">${k === 2 ? "Finish setup" : "Continue"} →</button><button class="btn secondary" onclick="update({onboard:3})">Skip</button></div></div></section>`;
 }
 function home() {
-  return `${hero()}${onboard()}${practice()}${content()}${goals()}${workshop()}`;
+  return `${hero()}${onboard()}${practice()}${wellbeing()}${content()}${goals()}${workshop()}${stories()}`;
 }
 function secondary() {
   let p = state.tab;
@@ -214,6 +216,7 @@ function secondary() {
   return `<div class="section-title"><h2>Your journey</h2></div><div class="card practice"><h3>Welcome, Anand 🌱</h3><p class="muted">Demo profile. Preferences and daily check-ins save locally.</p><div class="switchline">Daily reminder (demo only)<input type="checkbox" aria-label="Daily reminder" ${state.reminder ? "checked" : ""} onchange="update({reminder:this.checked})"></div><button class="btn secondary" onclick="resetDemo()">Reset demo data</button></div>`;
 }
 function modal() {
+  const custom=specialModal(); if(custom!==null)return custom;
   if (!state.modal) return "";
   let m = state.modal;
   let r = m.type === "recipe" ? recipes[m.id] : null;

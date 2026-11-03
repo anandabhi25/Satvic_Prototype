@@ -59,3 +59,7 @@ The root directory is ready for static GitHub Pages hosting (`.nojekyll` disable
 https://github.com/anandabhi25/Satvic_Prototype/settings/pages
 
 Choose **Deploy from a branch**, branch **main**, folder **/ (root)**, then **Save**. GitHub will display the deployment URL when the build succeeds. The expected project URL is `https://anandabhi25.github.io/Satvic_Prototype/`; it is not confirmed live merely by committing these files. If Pages is unavailable for this repository's visibility and account plan, GitHub's settings will show that limitation; do not change repository visibility without explicit approval.
+
+## Guided first-value experience
+
+`journey.js` implements a timed breathing guide, optional feelings check-in and completion choices before broader discovery. The timer stops on dialog dismissal and supports pause/resume and skipping. Only completed practices can be logged. An eight-question optional wellbeing reflection shows a transparent habits tally rather than a medical assessment; its answers and feelings are not persisted. The supplied SVG brand mark is shown on a green backing. Persona animations respect reduced-motion preferences. Official story discovery links to the supplied Satvic homepage because individual story URLs could not be verified from this environment.

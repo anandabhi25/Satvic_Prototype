@@ -30,3 +30,11 @@ Artifacts: `screenshots/home-{320,375,390,430,1280}.png`, `screenshots/class-dia
 - Repository tests verify browser behavior and selected calendar sequences; daylight-saving transitions, midnight rollover while continuously open, storage quota failure after startup and cross-tab synchronization were not separately tested.
 
 This is a working concept prototype, not a production-readiness certification.
+
+## November 3 update: first-value journey
+
+Added the supplied SVG logo on a green backing for contrast, mint/cream/terracotta styling, four animated persona symbols and reduced-motion fallback. Added a two-minute breathing guide with a natural-breathing alternative, pause/resume, skip, optional feelings check-in and completion choices. Only a completed practice is logged; skipping does not count as completion. Feelings are ephemeral. The optional eight-question wellbeing score excludes skipped answers, explains its arithmetic, handles all-skipped input without inventing a score and keeps answers in memory only.
+
+Updated automated Chromium checks cover a full 120-second journey using Playwright's controlled clock, a paused interval, resume, optional check-in, completed-practice logging, skipping without logging, scoring/back navigation/all-skip, no score answers persisted, reduced-motion CSS, SVG loading and the official homepage link. Existing persona, onboarding, persistence, focus, navigation, viewport and storage recovery tests remain in the suite. Updated mobile/desktop screenshots plus breathing completion and wellbeing result captures are included. Manual VoiceOver and real-device review remain pending.
+
+The official homepage returned HTTP 403 from the cloud environment. The Stories of Success card therefore links to the user-specified official homepage and explicitly directs users to its Stories of Success section. Individual story URLs, current testimonial copy and images were not retrievable or verified and have not been fabricated. Colors follow the user-supplied visual references rather than a live site CSS extraction.
