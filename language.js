@@ -27,6 +27,9 @@ Calm|शांत
 Okay|ठीक
 Tired|थके हुए
 You showed up. One gentle step is enough.|आपने अपने लिए समय निकाला। एक छोटा कदम भी काफ़ी है।
+Daily check-in|रोज़ का चेक-इन
+Takes 10 seconds|सिर्फ़ 10 सेकंड
+Done for today|आज के लिए पूरा
 Optional · saved only on this device for today. A check-in does not count as a completed practice.|वैकल्पिक · आज के लिए केवल इस डिवाइस पर सहेजा जाएगा। यह अभ्यास पूरा करने के बराबर नहीं है।
 YOUR FIRST STEP, TAKEN|आपका पहला कदम पूरा हुआ
 What would help you keep going?|आगे बढ़ने में क्या मदद करेगा?

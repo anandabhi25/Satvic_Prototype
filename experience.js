@@ -20,9 +20,12 @@ function personaSettings() {
     )
     .join("")}</select></details>`;
 }
+let checkBurst = false;
 function checkIn() {
   const done = state.checkInDate === today();
-  return `<section class="daily-check"><div><span class="eyebrow">YOUR DAILY CHECK-IN</span><h2>How are you arriving today?</h2><p>A small pause to notice. No score, no right answer.</p></div><div class="feeling-row">${[
+  const open = state.checkOpen !== false;
+  const sparks = checkBurst ? `<div class="ci-burst" aria-hidden="true">${Array.from({ length: 16 }, (_, k) => `<i style="--a:${k * 22.5}deg;--d:${60 + (k % 4) * 18}px"></i>`).join("")}</div>` : "";
+  return `<section class="daily-check check-accordion ${checkBurst ? "celebrate" : ""}"><details ${open ? "open" : ""}><summary onclick="state.checkOpen=!this.parentElement.open;save()"><span class="ci-ring ${done ? "done" : ""}" aria-hidden="true">${done ? "✓" : "🌱"}</span><span class="ci-sum"><b>Daily check-in</b><small>${done ? "Done for today" : "Takes 10 seconds"}</small></span></summary><div class="ci-body"><div><span class="eyebrow">YOUR DAILY CHECK-IN</span><h2>How are you arriving today?</h2><p>A small pause to notice. No score, no right answer.</p></div><div class="feeling-row">${[
     ["calm", "🌿", "Calm"],
     ["okay", "☀", "Okay"],
     ["tired", "☾", "Tired"],
@@ -33,14 +36,16 @@ function checkIn() {
     )
     .join(
       "",
-    )}</div><div class="checkin-feedback ${done ? "checked-in" : ""}" role="status">${done ? '<span class="checkin-sprout" aria-hidden="true">🌱</span> You showed up. One gentle step is enough.' : ""}</div><p class="hint">Optional · saved only on this device for today. A check-in does not count as a completed practice.</p></section>`;
+    )}</div><div class="checkin-feedback ${done ? "checked-in" : ""}" role="status">${done ? '<span class="checkin-sprout" aria-hidden="true">🌱</span> You showed up. One gentle step is enough.' : ""}</div><p class="hint">Optional · saved only on this device for today. A check-in does not count as a completed practice.</p></div></details>${sparks}</section>`;
 }
 function dailyCheck(feeling) {
+  checkBurst = state.checkInDate !== today();
   state.checkInDate = today();
   state.checkInFeeling = feeling;
   save();
   const y = scrollY;
   render();
+  checkBurst = false;
   scrollTo(0, y);
   document
     .querySelector(
