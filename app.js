@@ -1,3 +1,9 @@
+const PERSONA_NAMES = {
+  new: "Kavya",
+  returning: "Riya",
+  enrolled: "Anand",
+  completed: "Gaurav",
+};
 function dateKey(d) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
@@ -95,7 +101,9 @@ if (
 )
   state.tab = "Home";
 const checked = () => state.history[today()] || [];
-function streak(){return V2.dayStreak(state.history,today());}
+function streak() {
+  return V2.dayStreak(state.history, today());
+}
 function update(o) {
   Object.assign(state, o);
   save();
@@ -118,7 +126,12 @@ function openModal(type, id) {
   startCommunity(type);
   if (["class", "lesson", "lessonPreview"].includes(type)) {
     pausePlayer();
-    player = { time: 0, speed: 1, running: false };
+    player = {
+      time: 0,
+      speed: 1,
+      running: false,
+      quality: player.quality || "auto",
+    };
     track(
       type === "lessonPreview" ? "free_content_opened" : "workshop_resume",
       { sample: true },
@@ -170,7 +183,7 @@ document.addEventListener("keydown", (e) => {
   }
 });
 function header() {
-  return `${siteHeader()}<header class="top"><div class="brand"><span class="space-label">YOUR DAILY SPACE</span><button class="avatar" aria-label="Open profile" onclick="tab('Profile')">☺</button></div><div class="eyebrow">Your satvic today 🌿</div><h1>Namaste, Anand</h1><div class="muted">A little nourishment. A little movement. A moment for you.</div><div class="statebar"><label><span class="hint">Demo persona · simulated</span><br><select aria-label="Demo persona · simulated" onchange="persona(this.value)"><option value="new" ${state.persona === "new" ? "selected" : ""}>Curious Kavya · new/free</option><option value="returning" ${state.persona === "returning" ? "selected" : ""}>Returning Riya · free</option><option value="enrolled" ${state.persona === "enrolled" ? "selected" : ""}>Committed Anand · enrolled</option><option value="completed" ${state.persona === "completed" ? "selected" : ""}>Growing Gaurav · completed</option></select></label><span class="badge"><span class="persona-icon ${state.persona}" aria-hidden="true">${{ new: "🌱", returning: "🍃", enrolled: "🪷", completed: "☀" }[state.persona]}</span> ${streak() ? streak() + " day practice streak" : "Begin your journey"}</span></div></header>`;
+  return `${siteHeader()}<header class="top"><div class="brand"><span class="space-label">YOUR DAILY SPACE</span><button class="avatar" aria-label="Open profile" onclick="tab('Profile')">☺</button></div><div class="eyebrow">Your satvic today 🌿</div><h1>Namaste, ${PERSONA_NAMES[state.persona] || "friend"}</h1><div class="muted">A little nourishment. A little movement. A moment for you.</div>${preferences()}<div class="statebar"><span class="badge"><span class="persona-icon ${state.persona}" aria-hidden="true">${{ new: "🌱", returning: "🍃", enrolled: "🪷", completed: "☀" }[state.persona]}</span> ${streak() ? streak() + " day practice streak" : "Begin your journey"}</span></div></header>`;
 }
 function resolveNextAction(persona, interest) {
   if (
@@ -241,14 +254,51 @@ function onboard() {
   const k = state.onboard;
   return `<section class="section"><div class="card practice"><span class="pill">WELCOME · STEP ${k + 1} OF 3</span><h2>${["A gentle beginning", "Choose what interests you", resolveNextAction(state.persona, state.goal).title][k]}</h2><p class="muted">${["We’ll help you find your next meaningful step.", "Start with an interest; you can always change it.", resolveNextAction(state.persona, state.goal).description][k]}</p>${k === 1 ? `<div class="actions">${["Food", "Yoga", "Both"].map((x) => `<button class="btn ${state.goal === x ? "" : "ghost"}" onclick="update({goal:'${x}'})">${x}</button>`).join("")}</div>` : ""}<div class="actions"><button class="btn" onclick="update({onboard:${k + 1}})">${k === 2 ? "Finish setup" : "Continue"} →</button><button class="btn secondary" onclick="update({onboard:3})">Skip</button></div></div></section>`;
 }
-function homeBand(id,kind,body){return `<section id="${id}" class="home-band ${kind}" tabindex="-1"><div class="band-inner">${body}</div></section>`;}
-function sectionNav(){return `<nav class="section-nav" aria-label="Dashboard sections">${[['next-step','Your next step'],['free-discovery','Free recipes & practice'],['learning-home','My Learning'],['wellbeing-home','Wellbeing'],['programs-home','Programs'],['friends-home','Invite a friend'],['stories-home','Stories']].map(([id,label])=>`<a href="#${id}" onclick="event.preventDefault();goToSection('${id}')">${label}</a>`).join('')}</nav>`;}
-function goToSection(id){const el=document.getElementById(id);if(el){history.replaceState(null,'','#'+id);el.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});el.focus({preventScroll:true});}}
-function freeDiscovery(){return `<div class="band-heading"><span class="eyebrow">A FREE PLACE TO BEGIN</span><h2>A little nourishment. A little practice.</h2><p>Start with something you can use today. No account, no payment, and no perfect routine required.</p></div><div class="free-feature-grid"><article class="card first-recipe"><img src="assets/meal-plan.jpg" alt="Illustrative Satvic meal-planning scene"><div class="details"><span class="pill">Free · original prototype guide</span><h3>A simple fruit bowl, made your own</h3><p>Three easy steps to prepare something fresh. A small practical beginning.</p><div class="actions"><button class="btn" onclick="showRecipe('bowl')">Make a simple fruit bowl</button><button class="text-button" onclick="tab('Recipes')">Browse all recipes →</button></div></div></article>${practice()}</div>${content()}`;}
-function learningOverview(){const eligible=sampleEnrollments().some(e=>!e.expired);return `<div class="learning-overview"><div><span class="eyebrow">MY LEARNING</span><h2>${eligible?'Come back to what you began.':'A place for your learning to grow.'}</h2><p>${eligible?'Your sample Daily Yoga lesson and notes are together, with clear recording and material access terms.':'Find your lessons, recordings and notes together. No connected enrollment is required to explore the free beginner preview.'}</p><div class="actions"><button class="btn" onclick="tab('My Learning')">Open My Learning</button><button class="btn ghost" onclick="openModal('lessonPreview')">Try beginner preview</button></div></div><article class="card learning-preview"><img src="assets/yoga.jpg" alt="Yoga practice from supplied research imagery"><div><span class="pill">${eligible?'Paid · sample member':'Preview · simulated lesson'}</span><h3>Daily Yoga</h3><p>${eligible?'Lesson 3 of 8 · illustrative recording access through 10 November 2026, 23:59 IST.':'Explore a beginner-friendly timeline with pause, rewind, replay and gentle playback speed.'}</p><small>Demo only · no official video or live class is connected.</small></div></article></div>`;}
-function chatEntry(){return `<aside class="chat-entry"><div><span class="eyebrow">A LITTLE GUIDANCE</span><h3>Not sure where to go next?</h3><p>Ask Satvic Saathi about free recipes, sample classes or access terms. Source-linked FAQ answers, with an official-team fallback.</p><small>Scripted prototype chatbot · no account or medical advice.</small></div><button class="btn secondary" onclick="openModal('chat')">Chat with Satvic Saathi</button></aside>`;}
+function homeBand(id, kind, body) {
+  return `<section id="${id}" class="home-band ${kind}" tabindex="-1"><div class="band-inner">${body}</div></section>`;
+}
+function sectionNav() {
+  return `<nav class="section-nav" aria-label="Dashboard sections">${[
+    ["next-step", "Your next step"],
+    ["free-discovery", "Free recipes & practice"],
+    ["learning-home", "My Learning"],
+    ["wellbeing-home", "Wellbeing"],
+    ["programs-home", "Programs"],
+    ["friends-home", "Invite a friend"],
+    ["stories-home", "Stories"],
+  ]
+    .map(
+      ([id, label]) =>
+        `<a href="#${id}" onclick="event.preventDefault();goToSection('${id}')">${label}</a>`,
+    )
+    .join("")}</nav>`;
+}
+function goToSection(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    history.replaceState(null, "", "#" + id);
+    el.scrollIntoView({
+      behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "instant"
+        : "smooth",
+      block: "start",
+    });
+    el.focus({ preventScroll: true });
+  }
+}
+function freeDiscovery() {
+  return `<div class="band-heading"><span class="eyebrow">A FREE PLACE TO BEGIN</span><h2>A little nourishment. A little practice.</h2><p>Start with something you can use today. No account, no payment, and no perfect routine required.</p></div><div class="free-feature-grid"><article class="card first-recipe"><img src="assets/meal-plan.jpg" alt="Illustrative Satvic meal-planning scene"><div class="details"><span class="pill">Free · original prototype guide</span><h3>A simple fruit bowl, made your own</h3><p>Three easy steps to prepare something fresh. A small practical beginning.</p><div class="actions"><button class="btn" onclick="showRecipe('bowl')">Make a simple fruit bowl</button><button class="text-button" onclick="tab('Recipes')">Browse all recipes →</button></div></div></article>${practice()}</div>${content()}`;
+}
+function learningOverview() {
+  const eligible = sampleEnrollments().some((e) => !e.expired);
+  return `<div class="learning-overview"><div><span class="eyebrow">MY LEARNING</span><h2>${eligible ? "Come back to what you began." : "A place for your learning to grow."}</h2><p>${eligible ? "Your sample Daily Yoga lesson and notes are together, with clear recording and material access terms." : "Find your lessons, recordings and notes together. No connected enrollment is required to explore the free beginner preview."}</p><div class="actions"><button class="btn" onclick="tab('My Learning')">Open My Learning</button><button class="btn ghost" onclick="openModal('lessonPreview')">Try beginner preview</button></div></div><article class="card learning-preview"><img src="assets/yoga.jpg" alt="Yoga practice from supplied research imagery"><div><span class="pill">${eligible ? "Paid · sample member" : "Preview · simulated lesson"}</span><h3>Daily Yoga</h3><p>${eligible ? "Lesson 3 of 8 · illustrative recording access through 10 November 2026, 23:59 IST." : "Explore a beginner-friendly timeline with pause, rewind, replay and gentle playback speed."}</p><small>Demo only · no official video or live class is connected.</small></div></article></div>`;
+}
+function chatEntry() {
+  return `<aside class="chat-entry"><div><span class="eyebrow">A LITTLE GUIDANCE</span><h3>Not sure where to go next?</h3><p>Ask Satvic Saathi about free recipes, sample classes or access terms. Source-linked FAQ answers, with an official-team fallback.</p><small>Scripted prototype chatbot · no account or medical advice.</small></div><button class="btn secondary" onclick="openModal('chat')">Chat with Satvic Saathi</button></aside>`;
+}
 function home() {
- return `${invitationBanner()}${sectionNav()}${homeBand('next-step','next-band',hero())}${homeBand('free-discovery','cream-band',onboard()+freeDiscovery())}${homeBand('learning-home','sage-band',learningOverview())}${homeBand('wellbeing-home','wellbeing-band',`<div class="band-heading"><span class="eyebrow">NOTICE YOUR DAY</span><h2>Small habits, without judgement.</h2><p>A gentle reflection on what supported you. Always optional.</p></div><div class="wellbeing-grid">${wellbeing()}${goals()}</div>`)}${homeBand('programs-home','cream-band',`<div class="band-heading"><span class="eyebrow">WHEN YOU FEEL READY</span><h2>A little more structure, at your pace.</h2><p>Keep your free practice. Explore deeper learning only when it feels useful.</p></div><div class="program-grid">${offersSection()}${workshop()}</div>${chatEntry()}`)}${homeBand('friends-home','sage-band',inviteCard())}${homeBand('stories-home','stories-band',stories())}`;
+  if (window.innerWidth <= 800) return compactHome();
+  return `${invitationBanner()}${sectionNav()}${homeBand("next-step", "next-band", hero())}${homeBand("free-discovery", "cream-band", onboard() + freeDiscovery())}${homeBand("learning-home", "sage-band", learningOverview())}${homeBand("wellbeing-home", "wellbeing-band", `<div class="band-heading"><span class="eyebrow">NOTICE YOUR DAY</span><h2>Small habits, without judgement.</h2><p>A gentle reflection on what supported you. Always optional.</p></div><div class="wellbeing-grid">${checkIn()}${wellbeing()}${goals()}</div>`)}${homeBand("programs-home", "cream-band", `<div class="band-heading"><span class="eyebrow">WHEN YOU FEEL READY</span><h2>A little more structure, at your pace.</h2><p>Keep your free practice. Explore deeper learning only when it feels useful.</p></div><div class="program-grid">${offersSection()}${workshop()}</div>${chatEntry()}`)}${homeBand("friends-home", "sage-band", inviteCard())}${homeBand("stories-home", "stories-band", stories())}`;
 }
 function secondary() {
   if (state.tab === "My Learning") return learning();
@@ -256,9 +306,11 @@ function secondary() {
   let p = state.tab;
   if (p === "Explore")
     return `<div class="section-title"><h2>Explore the movement</h2></div><div class="links"><button class="tile" onclick="tab('Recipes')">Free / Preview · Recipes</button><button class="tile" onclick="openModal('workshop')">Paid · Workshops</button><button class="tile" onclick="openModal('lessonPreview')">Preview · Daily Yoga</button><button class="tile" onclick="link('https://dev.marketplace.satvicmovement.org/collections/all-products')">Paid · Shop & books ↗</button><button class="tile" onclick="openModal('community')">Preview · Potluck community</button></div><p class="hint">Marketplace opens an external development-store link supplied for assignment research, not a checkout inside this prototype.</p><article class="card practice"><span class="pill">Preview · screenshot reference</span><h3>Bread & Sandwiches Workshop</h3><p class="muted">Seen in the candidate dashboard screenshot. Current cohort, price, schedule and access are unverified.</p><a href="https://satvicmovement.org/" target="_blank" rel="noopener noreferrer">Check official workshop availability ↗</a></article>`;
-  return `<div class="section-title"><h2>Your journey</h2></div><div class="card practice"><h3>Welcome, Anand 🌱</h3><p class="muted">Demo profile. Preferences and daily check-ins save locally.</p><div class="switchline">Daily reminder (demo only)<input type="checkbox" aria-label="Daily reminder" ${state.reminder ? "checked" : ""} onchange="update({reminder:this.checked})"></div><button class="btn secondary" onclick="resetDemo()">Reset demo data</button><details><summary>Demo event log · local only</summary><pre class="event-log">${h(JSON.stringify(demoEvents, null, 2))}</pre></details></div>`;
+  return `<div class="section-title"><h2>Your journey</h2></div><div class="card practice"><h3>Welcome, ${PERSONA_NAMES[state.persona] || "friend"} 🌱</h3>${personaSettings()}<p class="muted">Demo profile. Preferences and daily check-ins save locally.</p><div class="switchline">Daily reminder (demo only)<input type="checkbox" aria-label="Daily reminder" ${state.reminder ? "checked" : ""} onchange="update({reminder:this.checked})"></div><button class="btn secondary" onclick="resetDemo()">Reset demo data</button><details><summary>Demo event log · local only</summary><pre class="event-log">${h(JSON.stringify(demoEvents, null, 2))}</pre></details></div>`;
 }
 function modal() {
+  const experience = experienceDialog();
+  if (experience !== null) return experience;
   const research = v2Dialog();
   if (research !== null) return research;
   const community = communityModal();
@@ -332,7 +384,8 @@ function render() {
   const focusLabel = focus?.getAttribute("aria-label");
   const focusText = focus?.tagName === "BUTTON" ? focus.textContent : null;
   document.getElementById("app").innerHTML =
-    `<div id="page-content" ${state.modal ? "inert" : ""}>${header()}${nav()}${!storageAvailable ? '<div class="notice" role="status">Storage is unavailable. You can still explore; changes last for this visit.</div>' : ""}<div class="content screen ${state.tab==='Home'?'home-content':'detail-content'}">${state.tab === "Home" ? home() : secondary()}<p class="hint">Candidate concept · not an official Satvic product<br>Demo states & screenshot-derived visuals for research only.</p></div><button class="guide-launcher" onclick="openModal('chat')" aria-label="Open Satvic Saathi">Ask Satvic Saathi 🌱 <span aria-hidden="true">↗</span></button></div>${modal()}`;
+    `<div id="page-content" ${state.modal ? "inert" : ""}>${header()}${nav()}${!storageAvailable ? '<div class="notice" role="status">Storage is unavailable. You can still explore; changes last for this visit.</div>' : ""}<div class="content screen ${state.tab === "Home" ? "home-content" : "detail-content"}">${state.tab === "Home" ? home() : secondary()}<p class="hint">Candidate concept · not an official Satvic product<br>Demo states & screenshot-derived visuals for research only.</p></div><button class="guide-launcher" onclick="openModal('chat')" aria-label="Open Satvic Saathi">Ask Satvic Saathi 🌱 <span aria-hidden="true">↗</span></button></div>${modal()}`;
+  applyPreferences();
   if (!state.modal) {
     const target = focusLabel
       ? document.querySelector(`[aria-label="${CSS.escape(focusLabel)}"]`)
@@ -373,5 +426,14 @@ window.addEventListener("resize", () => {
     headerDesktop = desktop;
     const menu = document.querySelector(".site-menu");
     if (menu) menu.open = desktop;
+  }
+});
+
+let phoneLayout = window.innerWidth <= 800;
+window.addEventListener("resize", () => {
+  const phone = window.innerWidth <= 800;
+  if (phone !== phoneLayout) {
+    phoneLayout = phone;
+    render();
   }
 });

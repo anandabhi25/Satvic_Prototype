@@ -60,6 +60,18 @@
     },
   ];
   function faq(text) {
+    const aliases = [
+      ["रेसिपी", "recipe"],
+      ["मुफ़्त", "free"],
+      ["नोट्स", "notes"],
+      ["वीडियो", "video"],
+      ["कीमत", "price"],
+      ["रिफ़ंड", "refund"],
+      ["क्लास", "class"],
+      ["इलाज", "medical"],
+      ["दवा", "medical"],
+    ];
+    for (const [hi, en] of aliases) if (text.includes(hi)) text += " " + en;
     if (
       /medical|medic|cure|disease|diagnos|pregnan|diabet|fasting|emergency|symptom|pain/i.test(
         text,

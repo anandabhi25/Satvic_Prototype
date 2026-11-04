@@ -31,3 +31,6 @@ assert.equal(m.dayStreak({}, "2026-11-03"), 0);
 console.log(
   "PASS: pure resolver priorities, empty/expired/duplicate/unauthorized cases, FAQ allowlist/fallback, offer terms and calendar streak",
 );
+
+assert.equal(m.faq("दवा का इलाज").id, "medical");
+assert.equal(m.faq("मुफ़्त रेसिपी").id, "free");
